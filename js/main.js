@@ -112,115 +112,123 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // -------------------------------------------------------
     // ⚠️  GANTI PASSWORD DI SINI
-    //     Jalankan di Console browser:
-    //     crypto.subtle.digest('SHA-256', new TextEncoder().encode('PASSWORD_BARU'))
-    //       .then(h => console.log(Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')))
-    //     Lalu copy hash-nya ke bawah.
+    //     Ubah nilai ADMIN_PASSWORD di bawah ini.
     // -------------------------------------------------------
-    // Default password: fadli2026
-    const ADMIN_HASH = 'a1b2c3d4'; // placeholder, real hash set below
-    
-    // SHA-256 hash function
-    async function sha256(message) {
-        const msgBuffer = new TextEncoder().encode(message);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    const ADMIN_PASSWORD = 'fadli2026';
+
+    // Simple hash function (djb2) — works on file://, http://, https://
+    function simpleHash(str) {
+        let hash = 5381;
+        for (let i = 0; i < str.length; i++) {
+            hash = ((hash << 5) + hash) + str.charCodeAt(i);
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return hash.toString(36);
     }
 
-    // Pre-computed hash of "fadli2026"
-    let adminPasswordHash = '';
-    
-    // Compute the hash on load
-    sha256('fadli2026').then(hash => {
-        adminPasswordHash = hash;
-    });
+    const ADMIN_TOKEN = simpleHash(ADMIN_PASSWORD + '_portfolio_admin');
 
-    let isAdmin = sessionStorage.getItem('portfolio_admin') === 'true';
+    let isAdmin = sessionStorage.getItem('portfolio_admin') === ADMIN_TOKEN;
 
     const btnAdminLogin = document.getElementById('btnAdminLogin');
     const btnAdminLogout = document.getElementById('btnAdminLogout');
     const loginModal = document.getElementById('loginModal');
     const btnLoginCancel = document.getElementById('btnLoginCancel');
     const btnLoginSubmit = document.getElementById('btnLoginSubmit');
-    const adminPassword = document.getElementById('adminPassword');
+    const adminPasswordInput = document.getElementById('adminPassword');
     const loginError = document.getElementById('loginError');
     const togglePassword = document.getElementById('togglePassword');
 
-    // Toggle admin UI
+    // Toggle admin UI visibility
     function updateAdminUI() {
         const adminElements = document.querySelectorAll('.admin-only');
         adminElements.forEach(el => {
             el.style.display = isAdmin ? '' : 'none';
         });
-        btnAdminLogin.style.display = isAdmin ? 'none' : '';
+        if (btnAdminLogin) {
+            btnAdminLogin.style.display = isAdmin ? 'none' : '';
+        }
         renderAssignments();
     }
 
     // Open login modal
-    btnAdminLogin.addEventListener('click', () => {
-        adminPassword.value = '';
-        loginError.style.display = 'none';
-        loginModal.classList.add('active');
-        setTimeout(() => adminPassword.focus(), 100);
-    });
+    if (btnAdminLogin) {
+        btnAdminLogin.addEventListener('click', () => {
+            adminPasswordInput.value = '';
+            loginError.style.display = 'none';
+            loginModal.classList.add('active');
+            setTimeout(() => adminPasswordInput.focus(), 100);
+        });
+    }
 
     // Close login modal
     function closeLoginModal() {
         loginModal.classList.remove('active');
-        adminPassword.value = '';
+        adminPasswordInput.value = '';
         loginError.style.display = 'none';
     }
 
-    btnLoginCancel.addEventListener('click', closeLoginModal);
-    loginModal.addEventListener('click', (e) => {
-        if (e.target === loginModal) closeLoginModal();
-    });
+    if (btnLoginCancel) {
+        btnLoginCancel.addEventListener('click', closeLoginModal);
+    }
+    if (loginModal) {
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) closeLoginModal();
+        });
+    }
 
     // Toggle password visibility
-    togglePassword.addEventListener('click', () => {
-        const type = adminPassword.type === 'password' ? 'text' : 'password';
-        adminPassword.type = type;
-        togglePassword.querySelector('i').className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
-    });
+    if (togglePassword) {
+        togglePassword.addEventListener('click', () => {
+            const type = adminPasswordInput.type === 'password' ? 'text' : 'password';
+            adminPasswordInput.type = type;
+            togglePassword.querySelector('i').className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+        });
+    }
 
     // Login submit
-    async function handleLogin() {
-        const password = adminPassword.value;
+    function handleLogin() {
+        const password = adminPasswordInput.value;
         if (!password) {
-            adminPassword.focus();
+            adminPasswordInput.focus();
             return;
         }
 
-        const hash = await sha256(password);
-        if (hash === adminPasswordHash) {
+        if (password === ADMIN_PASSWORD) {
             isAdmin = true;
-            sessionStorage.setItem('portfolio_admin', 'true');
+            sessionStorage.setItem('portfolio_admin', ADMIN_TOKEN);
             closeLoginModal();
             updateAdminUI();
         } else {
             loginError.style.display = 'block';
-            adminPassword.value = '';
-            adminPassword.focus();
+            adminPasswordInput.value = '';
+            adminPasswordInput.focus();
             // Shake animation
-            loginModal.querySelector('.modal').style.animation = 'none';
+            const modalEl = loginModal.querySelector('.modal');
+            modalEl.style.animation = 'none';
             setTimeout(() => {
-                loginModal.querySelector('.modal').style.animation = 'shake 0.4s ease';
+                modalEl.style.animation = 'shake 0.4s ease';
             }, 10);
         }
     }
 
-    btnLoginSubmit.addEventListener('click', handleLogin);
-    adminPassword.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') handleLogin();
-    });
+    if (btnLoginSubmit) {
+        btnLoginSubmit.addEventListener('click', handleLogin);
+    }
+    if (adminPasswordInput) {
+        adminPasswordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+    }
 
     // Logout
-    btnAdminLogout.addEventListener('click', () => {
-        isAdmin = false;
-        sessionStorage.removeItem('portfolio_admin');
-        updateAdminUI();
-    });
+    if (btnAdminLogout) {
+        btnAdminLogout.addEventListener('click', () => {
+            isAdmin = false;
+            sessionStorage.removeItem('portfolio_admin');
+            updateAdminUI();
+        });
+    }
 
     // Initialize admin UI on load
     updateAdminUI();
@@ -244,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return data ? JSON.parse(data) : [];
     }
 
-    function saveAssignments(assignments) {
+    function saveAssignmentsData(assignments) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(assignments));
     }
 
@@ -286,15 +294,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return div.innerHTML;
     }
 
-    function addFileEntry(name = '', url = '') {
+    function addFileEntry(name, url) {
+        name = name || '';
+        url = url || '';
         const entry = document.createElement('div');
         entry.className = 'file-entry';
-        entry.innerHTML = `
-            <input type="text" class="entry-name" placeholder="Nama file / deskripsi" value="${escapeHtml(name)}">
-            <input type="text" class="entry-url" placeholder="Link Google Drive / URL" value="${escapeHtml(url)}">
-            <button type="button" class="btn-remove-entry" title="Hapus"><i class="fas fa-times"></i></button>
-        `;
-        entry.querySelector('.btn-remove-entry').addEventListener('click', () => entry.remove());
+        entry.innerHTML =
+            '<input type="text" class="entry-name" placeholder="Nama file / deskripsi" value="' + escapeHtml(name) + '">' +
+            '<input type="text" class="entry-url" placeholder="Link Google Drive / URL" value="' + escapeHtml(url) + '">' +
+            '<button type="button" class="btn-remove-entry" title="Hapus"><i class="fas fa-times"></i></button>';
+        entry.querySelector('.btn-remove-entry').addEventListener('click', function() {
+            entry.remove();
+        });
         fileEntriesContainer.appendChild(entry);
     }
 
@@ -311,8 +322,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openEditModal(id) {
         if (!isAdmin) return;
-        const assignments = getAssignments();
-        const assignment = assignments.find(a => a.id === id);
+        var assignments = getAssignments();
+        var assignment = null;
+        for (var i = 0; i < assignments.length; i++) {
+            if (assignments[i].id === id) { assignment = assignments[i]; break; }
+        }
         if (!assignment) return;
 
         modalTitle.textContent = 'Edit Tugas';
@@ -322,7 +336,9 @@ document.addEventListener('DOMContentLoaded', () => {
         fileEntriesContainer.innerHTML = '';
 
         if (assignment.files && assignment.files.length > 0) {
-            assignment.files.forEach(f => addFileEntry(f.name, f.url));
+            for (var j = 0; j < assignment.files.length; j++) {
+                addFileEntry(assignment.files[j].name, assignment.files[j].url);
+            }
         } else {
             addFileEntry();
         }
@@ -335,23 +351,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveAssignment() {
         if (!isAdmin) return;
-        const name = document.getElementById('assignmentName').value.trim();
-        const subject = document.getElementById('assignmentSubject').value.trim();
-        const editId = editIdInput.value;
+        var name = document.getElementById('assignmentName').value.trim();
+        var subject = document.getElementById('assignmentSubject').value.trim();
+        var editId = editIdInput.value;
 
         if (!name) {
-            const nameInput = document.getElementById('assignmentName');
+            var nameInput = document.getElementById('assignmentName');
             nameInput.focus();
             nameInput.style.borderColor = '#dc2626';
-            setTimeout(() => { nameInput.style.borderColor = ''; }, 2000);
+            setTimeout(function() { nameInput.style.borderColor = ''; }, 2000);
             return;
         }
 
-        const entries = fileEntriesContainer.querySelectorAll('.file-entry');
-        const files = [];
-        entries.forEach(entry => {
-            const entryName = entry.querySelector('.entry-name').value.trim();
-            const entryUrl = entry.querySelector('.entry-url').value.trim();
+        var entries = fileEntriesContainer.querySelectorAll('.file-entry');
+        var files = [];
+        entries.forEach(function(entry) {
+            var entryName = entry.querySelector('.entry-name').value.trim();
+            var entryUrl = entry.querySelector('.entry-url').value.trim();
             if (entryName || entryUrl) {
                 files.push({
                     name: entryName || 'File',
@@ -361,28 +377,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        const assignments = getAssignments();
+        var assignments = getAssignments();
 
         if (editId) {
-            const index = assignments.findIndex(a => a.id === editId);
-            if (index !== -1) {
-                assignments[index].name = name;
-                assignments[index].subject = subject;
-                assignments[index].files = files;
-                assignments[index].updatedAt = new Date().toISOString();
+            for (var i = 0; i < assignments.length; i++) {
+                if (assignments[i].id === editId) {
+                    assignments[i].name = name;
+                    assignments[i].subject = subject;
+                    assignments[i].files = files;
+                    assignments[i].updatedAt = new Date().toISOString();
+                    break;
+                }
             }
         } else {
             assignments.unshift({
                 id: 'asg_' + Date.now(),
-                name,
-                subject,
-                files,
+                name: name,
+                subject: subject,
+                files: files,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             });
         }
 
-        saveAssignments(assignments);
+        saveAssignmentsData(assignments);
         closeAssignmentModal();
         renderAssignments();
     }
@@ -390,85 +408,113 @@ document.addEventListener('DOMContentLoaded', () => {
     function deleteAssignment(id) {
         if (!isAdmin) return;
         if (!confirm('Yakin ingin menghapus tugas ini?')) return;
-        const assignments = getAssignments().filter(a => a.id !== id);
-        saveAssignments(assignments);
+        var assignments = getAssignments().filter(function(a) { return a.id !== id; });
+        saveAssignmentsData(assignments);
         renderAssignments();
     }
 
     function renderAssignments() {
-        const assignments = getAssignments();
+        var assignments = getAssignments();
 
         if (assignments.length === 0) {
-            assignmentsList.innerHTML = `
-                <div class="assignment-empty">
-                    <i class="fas fa-book-open"></i>
-                    <p>Belum ada tugas</p>
-                    ${isAdmin ? '<p class="hint">Klik "Tambah Tugas" untuk menambahkan tugas kuliah</p>' : '<p class="hint">Belum ada tugas yang ditambahkan</p>'}
-                </div>
-            `;
+            var emptyHint = isAdmin
+                ? '<p class="hint">Klik "Tambah Tugas" untuk menambahkan tugas kuliah</p>'
+                : '<p class="hint">Belum ada tugas yang ditambahkan</p>';
+            assignmentsList.innerHTML =
+                '<div class="assignment-empty">' +
+                    '<i class="fas fa-book-open"></i>' +
+                    '<p>Belum ada tugas</p>' +
+                    emptyHint +
+                '</div>';
             return;
         }
 
-        assignmentsList.innerHTML = assignments.map(a => `
-            <div class="assignment-card" data-id="${a.id}">
-                <div class="assignment-card-header">
-                    <h4><i class="fas fa-book"></i> ${escapeHtml(a.name)}</h4>
-                    ${isAdmin ? `
-                        <div class="assignment-actions">
-                            <button class="btn-edit" title="Edit" onclick="editAssignment('${a.id}')">
-                                <i class="fas fa-pen"></i>
-                            </button>
-                            <button class="btn-delete" title="Hapus" onclick="deleteAssignmentById('${a.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    ` : ''}
-                </div>
-                ${a.subject ? `<div class="assignment-meta"><i class="fas fa-graduation-cap"></i> ${escapeHtml(a.subject)}</div>` : ''}
-                <div class="assignment-meta"><i class="fas fa-clock"></i> ${formatDate(a.updatedAt || a.createdAt)}</div>
-                ${a.files && a.files.length > 0 ? `
-                    <div class="assignment-files">
-                        ${a.files.map(f => {
-                            if (f.url) {
-                                return `
-                                    <a href="${escapeHtml(f.url)}" class="assignment-file" target="_blank" rel="noopener">
-                                        <i class="${getFileIcon(f.type)}"></i>
-                                        <span class="file-name">${escapeHtml(f.name)}</span>
-                                        <span class="file-type">${f.type}</span>
-                                    </a>`;
-                            } else {
-                                return `
-                                    <div class="assignment-file">
-                                        <i class="${getFileIcon('file')}"></i>
-                                        <span class="file-name">${escapeHtml(f.name)}</span>
-                                        <span class="file-type">file</span>
-                                    </div>`;
-                            }
-                        }).join('')}
-                    </div>
-                ` : ''}
-            </div>
-        `).join('');
+        var html = '';
+        for (var i = 0; i < assignments.length; i++) {
+            var a = assignments[i];
+            html += '<div class="assignment-card" data-id="' + a.id + '">';
+            html += '<div class="assignment-card-header">';
+            html += '<h4><i class="fas fa-book"></i> ' + escapeHtml(a.name) + '</h4>';
+            if (isAdmin) {
+                html += '<div class="assignment-actions">';
+                html += '<button class="btn-edit" title="Edit" data-edit-id="' + a.id + '"><i class="fas fa-pen"></i></button>';
+                html += '<button class="btn-delete" title="Hapus" data-delete-id="' + a.id + '"><i class="fas fa-trash"></i></button>';
+                html += '</div>';
+            }
+            html += '</div>';
+            if (a.subject) {
+                html += '<div class="assignment-meta"><i class="fas fa-graduation-cap"></i> ' + escapeHtml(a.subject) + '</div>';
+            }
+            html += '<div class="assignment-meta"><i class="fas fa-clock"></i> ' + formatDate(a.updatedAt || a.createdAt) + '</div>';
+            if (a.files && a.files.length > 0) {
+                html += '<div class="assignment-files">';
+                for (var j = 0; j < a.files.length; j++) {
+                    var f = a.files[j];
+                    if (f.url) {
+                        html += '<a href="' + escapeHtml(f.url) + '" class="assignment-file" target="_blank" rel="noopener">';
+                        html += '<i class="' + getFileIcon(f.type) + '"></i>';
+                        html += '<span class="file-name">' + escapeHtml(f.name) + '</span>';
+                        html += '<span class="file-type">' + f.type + '</span>';
+                        html += '</a>';
+                    } else {
+                        html += '<div class="assignment-file">';
+                        html += '<i class="' + getFileIcon('file') + '"></i>';
+                        html += '<span class="file-name">' + escapeHtml(f.name) + '</span>';
+                        html += '<span class="file-type">file</span>';
+                        html += '</div>';
+                    }
+                }
+                html += '</div>';
+            }
+            html += '</div>';
+        }
+        assignmentsList.innerHTML = html;
+
+        // Attach edit/delete event listeners via delegation
+        var editBtns = assignmentsList.querySelectorAll('.btn-edit[data-edit-id]');
+        editBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                openEditModal(btn.getAttribute('data-edit-id'));
+            });
+        });
+        var deleteBtns = assignmentsList.querySelectorAll('.btn-delete[data-delete-id]');
+        deleteBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                deleteAssignment(btn.getAttribute('data-delete-id'));
+            });
+        });
     }
 
-    // Global functions for onclick handlers
-    window.editAssignment = (id) => openEditModal(id);
-    window.deleteAssignmentById = (id) => deleteAssignment(id);
+    // Event listeners for assignment modal
+    if (btnAdd) {
+        btnAdd.addEventListener('click', function() {
+            openAddModal();
+        });
+    }
+    if (btnCancel) {
+        btnCancel.addEventListener('click', closeAssignmentModal);
+    }
+    if (btnSave) {
+        btnSave.addEventListener('click', function() {
+            saveAssignment();
+        });
+    }
+    if (btnAddEntry) {
+        btnAddEntry.addEventListener('click', function() {
+            addFileEntry();
+        });
+    }
 
-    // Event listeners
-    btnAdd.addEventListener('click', openAddModal);
-    btnCancel.addEventListener('click', closeAssignmentModal);
-    btnSave.addEventListener('click', saveAssignment);
-    btnAddEntry.addEventListener('click', () => addFileEntry());
+    if (assignmentModal) {
+        assignmentModal.addEventListener('click', function(e) {
+            if (e.target === assignmentModal) closeAssignmentModal();
+        });
+    }
 
-    assignmentModal.addEventListener('click', (e) => {
-        if (e.target === assignmentModal) closeAssignmentModal();
-    });
-
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            if (assignmentModal.classList.contains('active')) closeAssignmentModal();
-            if (loginModal.classList.contains('active')) closeLoginModal();
+            if (assignmentModal && assignmentModal.classList.contains('active')) closeAssignmentModal();
+            if (loginModal && loginModal.classList.contains('active')) closeLoginModal();
         }
     });
 
@@ -476,15 +522,16 @@ document.addEventListener('DOMContentLoaded', () => {
     renderAssignments();
 });
 
-// Shake animation (added via JS for login error)
-const shakeStyle = document.createElement('style');
-shakeStyle.textContent = `
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        20% { transform: translateX(-10px); }
-        40% { transform: translateX(10px); }
-        60% { transform: translateX(-6px); }
-        80% { transform: translateX(6px); }
-    }
-`;
-document.head.appendChild(shakeStyle);
+// Shake animation for login error
+(function() {
+    var shakeStyle = document.createElement('style');
+    shakeStyle.textContent =
+        '@keyframes shake {' +
+            '0%, 100% { transform: translateX(0); }' +
+            '20% { transform: translateX(-10px); }' +
+            '40% { transform: translateX(10px); }' +
+            '60% { transform: translateX(-6px); }' +
+            '80% { transform: translateX(6px); }' +
+        '}';
+    document.head.appendChild(shakeStyle);
+})();
