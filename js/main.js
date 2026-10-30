@@ -1,19 +1,54 @@
 // ========================================
-// Navigation & Section Switching
+// Fadli Portfolio - Main Script v3
 // ========================================
-document.addEventListener('DOMContentLoaded', () => {
-    const navItems = document.querySelectorAll('.nav-item');
-    const sections = document.querySelectorAll('.section');
 
-    navItems.forEach(item => {
-        item.addEventListener('click', (e) => {
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('[Portfolio] Script loaded successfully');
+
+    // ---- DOM Elements ----
+    var navItems = document.querySelectorAll('.nav-item');
+    var sections = document.querySelectorAll('.section');
+    var themeToggle = document.getElementById('themeToggle');
+    var profileImg = document.getElementById('profileImg');
+
+    // Admin elements
+    var btnAdminLogin = document.getElementById('btnAdminLogin');
+    var btnAdminLogout = document.getElementById('btnAdminLogout');
+    var loginModal = document.getElementById('loginModal');
+    var btnLoginCancel = document.getElementById('btnLoginCancel');
+    var btnLoginSubmit = document.getElementById('btnLoginSubmit');
+    var adminPasswordInput = document.getElementById('adminPassword');
+    var loginError = document.getElementById('loginError');
+    var togglePasswordBtn = document.getElementById('togglePassword');
+
+    // Assignment elements
+    var assignmentModal = document.getElementById('assignmentModal');
+    var btnAddAssignment = document.getElementById('btnAddAssignment');
+    var btnCancel = document.getElementById('btnCancel');
+    var btnSave = document.getElementById('btnSave');
+    var btnAddEntry = document.getElementById('btnAddEntry');
+    var fileEntriesContainer = document.getElementById('fileEntries');
+    var assignmentsList = document.getElementById('assignmentsList');
+    var modalTitle = document.getElementById('modalTitle');
+    var editIdInput = document.getElementById('editId');
+
+    console.log('[Portfolio] DOM elements:', {
+        btnAddAssignment: !!btnAddAssignment,
+        assignmentModal: !!assignmentModal,
+        loginModal: !!loginModal,
+        btnAdminLogin: !!btnAdminLogin
+    });
+
+    // ========================================
+    // NAVIGATION
+    // ========================================
+    navItems.forEach(function(item) {
+        item.addEventListener('click', function(e) {
             e.preventDefault();
-            const targetSection = item.getAttribute('data-section');
-
-            navItems.forEach(nav => nav.classList.remove('active'));
+            var targetSection = item.getAttribute('data-section');
+            navItems.forEach(function(nav) { nav.classList.remove('active'); });
             item.classList.add('active');
-
-            sections.forEach(section => {
+            sections.forEach(function(section) {
                 section.classList.remove('active');
                 if (section.id === targetSection) {
                     section.classList.add('active');
@@ -25,322 +60,273 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ========================================
-    // Dark Mode Toggle
+    // DARK MODE
     // ========================================
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = themeToggle.querySelector('i');
-
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') {
+    var themeIcon = themeToggle.querySelector('i');
+    if (localStorage.getItem('theme') === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
-        themeIcon.classList.remove('fa-moon');
-        themeIcon.classList.add('fa-sun');
+        themeIcon.className = 'fas fa-sun';
     }
-
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        if (currentTheme === 'dark') {
+    themeToggle.addEventListener('click', function() {
+        if (document.documentElement.getAttribute('data-theme') === 'dark') {
             document.documentElement.removeAttribute('data-theme');
             localStorage.setItem('theme', 'light');
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
+            themeIcon.className = 'fas fa-moon';
         } else {
             document.documentElement.setAttribute('data-theme', 'dark');
             localStorage.setItem('theme', 'dark');
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
+            themeIcon.className = 'fas fa-sun';
         }
     });
 
     // ========================================
-    // Skill Bar Animation
+    // SKILL BARS
     // ========================================
     function animateSkillBars() {
-        document.querySelectorAll('.skill-fill').forEach(fill => {
-            const width = fill.style.width;
+        document.querySelectorAll('.skill-fill').forEach(function(fill) {
+            var w = fill.style.width;
             fill.style.width = '0%';
-            setTimeout(() => { fill.style.width = width; }, 100);
+            setTimeout(function() { fill.style.width = w; }, 100);
         });
     }
 
     // ========================================
-    // Profile Image Fallback
+    // PROFILE FALLBACK
     // ========================================
-    const profileImg = document.getElementById('profileImg');
     if (profileImg) {
-        profileImg.addEventListener('error', () => {
-            const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-                <rect width="200" height="200" fill="#e0e0e0"/>
-                <circle cx="100" cy="80" r="40" fill="#888"/>
-                <ellipse cx="100" cy="180" rx="60" ry="50" fill="#888"/>
-                <text x="100" y="90" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="36" font-weight="700">F</text>
-            </svg>`;
-            profileImg.src = 'data:image/svg+xml,' + encodeURIComponent(svg);
+        profileImg.addEventListener('error', function() {
+            profileImg.src = 'data:image/svg+xml,' + encodeURIComponent(
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#e0e0e0"/><text x="100" y="110" text-anchor="middle" fill="#888" font-size="48">F</text></svg>'
+            );
         });
     }
 
     // ========================================
-    // Entrance Animation
+    // ENTRANCE ANIMATION
     // ========================================
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+    var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
                 entry.target.style.transform = 'translateY(0)';
             }
         });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    }, { threshold: 0.1 });
 
-    document.querySelectorAll('.service-card, .project-card, .timeline-item').forEach(el => {
+    document.querySelectorAll('.service-card, .project-card, .timeline-item').forEach(function(el) {
         el.style.opacity = '0';
         el.style.transform = 'translateY(20px)';
         el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        observer.observe(el);
+        obs.observe(el);
     });
-
-    const activeSection = document.querySelector('.section.active');
-    if (activeSection) {
-        activeSection.querySelectorAll('.service-card, .project-card, .timeline-item').forEach(el => {
+    var activeSec = document.querySelector('.section.active');
+    if (activeSec) {
+        activeSec.querySelectorAll('.service-card, .project-card, .timeline-item').forEach(function(el) {
             el.style.opacity = '1';
             el.style.transform = 'translateY(0)';
         });
     }
 
     // ========================================
-    // Admin Authentication System
+    // ADMIN SYSTEM
     // ========================================
+    var ADMIN_PASSWORD = 'fadli2026';
+    var isAdmin = sessionStorage.getItem('portfolio_admin') === 'yes';
+    console.log('[Portfolio] isAdmin on load:', isAdmin);
 
-    // -------------------------------------------------------
-    // ⚠️  GANTI PASSWORD DI SINI
-    //     Ubah nilai ADMIN_PASSWORD di bawah ini.
-    // -------------------------------------------------------
-    const ADMIN_PASSWORD = 'fadli2026';
-
-    // Simple hash function (djb2) — works on file://, http://, https://
-    function simpleHash(str) {
-        let hash = 5381;
-        for (let i = 0; i < str.length; i++) {
-            hash = ((hash << 5) + hash) + str.charCodeAt(i);
-            hash = hash & hash; // Convert to 32bit integer
-        }
-        return hash.toString(36);
+    function showAdminUI() {
+        console.log('[Portfolio] showAdminUI called, isAdmin:', isAdmin);
+        // Show/hide admin buttons
+        if (btnAddAssignment) btnAddAssignment.style.display = isAdmin ? 'flex' : 'none';
+        if (btnAdminLogout) btnAdminLogout.style.display = isAdmin ? 'flex' : 'none';
+        if (btnAdminLogin) btnAdminLogin.style.display = isAdmin ? 'none' : 'flex';
     }
 
-    const ADMIN_TOKEN = simpleHash(ADMIN_PASSWORD + '_portfolio_admin');
-
-    let isAdmin = sessionStorage.getItem('portfolio_admin') === ADMIN_TOKEN;
-
-    const btnAdminLogin = document.getElementById('btnAdminLogin');
-    const btnAdminLogout = document.getElementById('btnAdminLogout');
-    const loginModal = document.getElementById('loginModal');
-    const btnLoginCancel = document.getElementById('btnLoginCancel');
-    const btnLoginSubmit = document.getElementById('btnLoginSubmit');
-    const adminPasswordInput = document.getElementById('adminPassword');
-    const loginError = document.getElementById('loginError');
-    const togglePassword = document.getElementById('togglePassword');
-
-    // Toggle admin UI visibility
-    function updateAdminUI() {
-        const adminElements = document.querySelectorAll('.admin-only');
-        adminElements.forEach(el => {
-            el.style.display = isAdmin ? '' : 'none';
-        });
-        if (btnAdminLogin) {
-            btnAdminLogin.style.display = isAdmin ? 'none' : '';
-        }
-        renderAssignments();
-    }
-
-    // Open login modal
+    // LOGIN MODAL
     if (btnAdminLogin) {
-        btnAdminLogin.addEventListener('click', () => {
+        btnAdminLogin.addEventListener('click', function() {
+            console.log('[Portfolio] Login button clicked');
             adminPasswordInput.value = '';
             loginError.style.display = 'none';
             loginModal.classList.add('active');
-            setTimeout(() => adminPasswordInput.focus(), 100);
+            setTimeout(function() { adminPasswordInput.focus(); }, 150);
         });
     }
 
-    // Close login modal
-    function closeLoginModal() {
+    function closeLogin() {
         loginModal.classList.remove('active');
         adminPasswordInput.value = '';
         loginError.style.display = 'none';
     }
 
-    if (btnLoginCancel) {
-        btnLoginCancel.addEventListener('click', closeLoginModal);
-    }
+    if (btnLoginCancel) btnLoginCancel.addEventListener('click', closeLogin);
     if (loginModal) {
-        loginModal.addEventListener('click', (e) => {
-            if (e.target === loginModal) closeLoginModal();
+        loginModal.addEventListener('click', function(e) {
+            if (e.target === loginModal) closeLogin();
         });
     }
 
-    // Toggle password visibility
-    if (togglePassword) {
-        togglePassword.addEventListener('click', () => {
-            const type = adminPasswordInput.type === 'password' ? 'text' : 'password';
-            adminPasswordInput.type = type;
-            togglePassword.querySelector('i').className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    // Password visibility toggle
+    if (togglePasswordBtn) {
+        togglePasswordBtn.addEventListener('click', function() {
+            var isPassword = adminPasswordInput.type === 'password';
+            adminPasswordInput.type = isPassword ? 'text' : 'password';
+            togglePasswordBtn.querySelector('i').className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
         });
     }
 
-    // Login submit
-    function handleLogin() {
-        const password = adminPasswordInput.value;
-        if (!password) {
-            adminPasswordInput.focus();
-            return;
-        }
+    // Handle login
+    function doLogin() {
+        var pw = adminPasswordInput.value;
+        console.log('[Portfolio] Login attempt');
+        if (!pw) { adminPasswordInput.focus(); return; }
 
-        if (password === ADMIN_PASSWORD) {
+        if (pw === ADMIN_PASSWORD) {
+            console.log('[Portfolio] Login SUCCESS');
             isAdmin = true;
-            sessionStorage.setItem('portfolio_admin', ADMIN_TOKEN);
-            closeLoginModal();
-            updateAdminUI();
+            sessionStorage.setItem('portfolio_admin', 'yes');
+            closeLogin();
+            showAdminUI();
+            renderAssignments();
         } else {
+            console.log('[Portfolio] Login FAILED');
             loginError.style.display = 'block';
             adminPasswordInput.value = '';
             adminPasswordInput.focus();
-            // Shake animation
-            const modalEl = loginModal.querySelector('.modal');
-            modalEl.style.animation = 'none';
-            setTimeout(() => {
-                modalEl.style.animation = 'shake 0.4s ease';
-            }, 10);
         }
     }
 
-    if (btnLoginSubmit) {
-        btnLoginSubmit.addEventListener('click', handleLogin);
-    }
+    if (btnLoginSubmit) btnLoginSubmit.addEventListener('click', doLogin);
     if (adminPasswordInput) {
-        adminPasswordInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') handleLogin();
+        adminPasswordInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') doLogin();
         });
     }
 
-    // Logout
+    // Handle logout
     if (btnAdminLogout) {
-        btnAdminLogout.addEventListener('click', () => {
+        btnAdminLogout.addEventListener('click', function() {
+            console.log('[Portfolio] Logout');
             isAdmin = false;
             sessionStorage.removeItem('portfolio_admin');
-            updateAdminUI();
+            showAdminUI();
+            renderAssignments();
         });
     }
 
-    // Initialize admin UI on load
-    updateAdminUI();
+    // Init admin UI
+    showAdminUI();
 
     // ========================================
-    // Assignment Manager (CRUD + localStorage)
+    // ASSIGNMENT CRUD
     // ========================================
-    const STORAGE_KEY = 'portfolio_assignments';
-    const assignmentModal = document.getElementById('assignmentModal');
-    const btnAdd = document.getElementById('btnAddAssignment');
-    const btnCancel = document.getElementById('btnCancel');
-    const btnSave = document.getElementById('btnSave');
-    const btnAddEntry = document.getElementById('btnAddEntry');
-    const fileEntriesContainer = document.getElementById('fileEntries');
-    const assignmentsList = document.getElementById('assignmentsList');
-    const modalTitle = document.getElementById('modalTitle');
-    const editIdInput = document.getElementById('editId');
+    var STORAGE_KEY = 'portfolio_assignments';
 
     function getAssignments() {
-        const data = localStorage.getItem(STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
+        try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        } catch (e) { return []; }
     }
 
-    function saveAssignmentsData(assignments) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(assignments));
-    }
-
-    function detectFileType(url) {
-        const lower = url.toLowerCase();
-        if (lower.includes('drive.google.com') || lower.includes('docs.google.com')) return 'gdrive';
-        if (lower.includes('github.com')) return 'github';
-        if (lower.endsWith('.pdf')) return 'pdf';
-        if (lower.endsWith('.doc') || lower.endsWith('.docx')) return 'word';
-        if (lower.endsWith('.ppt') || lower.endsWith('.pptx')) return 'ppt';
-        if (lower.endsWith('.xls') || lower.endsWith('.xlsx')) return 'excel';
-        if (lower.endsWith('.zip') || lower.endsWith('.rar')) return 'archive';
-        return 'link';
-    }
-
-    function getFileIcon(type) {
-        const icons = {
-            gdrive: 'fab fa-google-drive',
-            github: 'fab fa-github',
-            pdf: 'fas fa-file-pdf',
-            word: 'fas fa-file-word',
-            ppt: 'fas fa-file-powerpoint',
-            excel: 'fas fa-file-excel',
-            archive: 'fas fa-file-archive',
-            link: 'fas fa-link',
-            file: 'fas fa-file'
-        };
-        return icons[type] || icons.link;
-    }
-
-    function formatDate(dateStr) {
-        const d = new Date(dateStr);
-        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    function storeAssignments(data) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
     function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
+        var d = document.createElement('div');
+        d.textContent = str || '';
+        return d.innerHTML;
     }
 
+    function detectType(url) {
+        var l = (url || '').toLowerCase();
+        if (l.indexOf('drive.google.com') !== -1 || l.indexOf('docs.google.com') !== -1) return 'gdrive';
+        if (l.indexOf('github.com') !== -1) return 'github';
+        if (l.indexOf('.pdf') !== -1) return 'pdf';
+        if (l.indexOf('.doc') !== -1) return 'word';
+        if (l.indexOf('.ppt') !== -1) return 'ppt';
+        if (l.indexOf('.xls') !== -1) return 'excel';
+        return 'link';
+    }
+
+    function fileIcon(type) {
+        var map = {
+            gdrive: 'fab fa-google-drive', github: 'fab fa-github',
+            pdf: 'fas fa-file-pdf', word: 'fas fa-file-word',
+            ppt: 'fas fa-file-powerpoint', excel: 'fas fa-file-excel',
+            link: 'fas fa-link', file: 'fas fa-file'
+        };
+        return map[type] || map.link;
+    }
+
+    function fmtDate(d) {
+        return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    // Add file entry row inside modal
     function addFileEntry(name, url) {
-        name = name || '';
-        url = url || '';
-        const entry = document.createElement('div');
-        entry.className = 'file-entry';
-        entry.innerHTML =
-            '<input type="text" class="entry-name" placeholder="Nama file / deskripsi" value="' + escapeHtml(name) + '">' +
-            '<input type="text" class="entry-url" placeholder="Link Google Drive / URL" value="' + escapeHtml(url) + '">' +
-            '<button type="button" class="btn-remove-entry" title="Hapus"><i class="fas fa-times"></i></button>';
-        entry.querySelector('.btn-remove-entry').addEventListener('click', function() {
-            entry.remove();
-        });
-        fileEntriesContainer.appendChild(entry);
+        var row = document.createElement('div');
+        row.className = 'file-entry';
+        var inp1 = document.createElement('input');
+        inp1.type = 'text';
+        inp1.className = 'entry-name';
+        inp1.placeholder = 'Nama file / deskripsi';
+        inp1.value = name || '';
+        var inp2 = document.createElement('input');
+        inp2.type = 'text';
+        inp2.className = 'entry-url';
+        inp2.placeholder = 'Link Google Drive / URL';
+        inp2.value = url || '';
+        var btnRm = document.createElement('button');
+        btnRm.type = 'button';
+        btnRm.className = 'btn-remove-entry';
+        btnRm.title = 'Hapus';
+        btnRm.innerHTML = '<i class="fas fa-times"></i>';
+        btnRm.addEventListener('click', function() { row.remove(); });
+        row.appendChild(inp1);
+        row.appendChild(inp2);
+        row.appendChild(btnRm);
+        fileEntriesContainer.appendChild(row);
     }
 
+    // OPEN ADD MODAL
     function openAddModal() {
-        if (!isAdmin) return;
+        console.log('[Portfolio] openAddModal called, isAdmin:', isAdmin);
+        if (!isAdmin) {
+            console.log('[Portfolio] Not admin, returning');
+            return;
+        }
         modalTitle.textContent = 'Tambah Tugas';
         editIdInput.value = '';
         document.getElementById('assignmentName').value = '';
         document.getElementById('assignmentSubject').value = '';
         fileEntriesContainer.innerHTML = '';
-        addFileEntry();
+        addFileEntry('', '');
+        console.log('[Portfolio] Opening assignment modal');
         assignmentModal.classList.add('active');
+        console.log('[Portfolio] Modal classes:', assignmentModal.className);
     }
 
+    // OPEN EDIT MODAL
     function openEditModal(id) {
         if (!isAdmin) return;
-        var assignments = getAssignments();
-        var assignment = null;
-        for (var i = 0; i < assignments.length; i++) {
-            if (assignments[i].id === id) { assignment = assignments[i]; break; }
+        var list = getAssignments();
+        var item = null;
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].id === id) { item = list[i]; break; }
         }
-        if (!assignment) return;
-
+        if (!item) return;
         modalTitle.textContent = 'Edit Tugas';
         editIdInput.value = id;
-        document.getElementById('assignmentName').value = assignment.name;
-        document.getElementById('assignmentSubject').value = assignment.subject || '';
+        document.getElementById('assignmentName').value = item.name;
+        document.getElementById('assignmentSubject').value = item.subject || '';
         fileEntriesContainer.innerHTML = '';
-
-        if (assignment.files && assignment.files.length > 0) {
-            for (var j = 0; j < assignment.files.length; j++) {
-                addFileEntry(assignment.files[j].name, assignment.files[j].url);
+        if (item.files && item.files.length) {
+            for (var j = 0; j < item.files.length; j++) {
+                addFileEntry(item.files[j].name, item.files[j].url);
             }
         } else {
-            addFileEntry();
+            addFileEntry('', '');
         }
         assignmentModal.classList.add('active');
     }
@@ -349,6 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
         assignmentModal.classList.remove('active');
     }
 
+    // SAVE
     function saveAssignment() {
         if (!isAdmin) return;
         var name = document.getElementById('assignmentName').value.trim();
@@ -356,113 +343,101 @@ document.addEventListener('DOMContentLoaded', () => {
         var editId = editIdInput.value;
 
         if (!name) {
-            var nameInput = document.getElementById('assignmentName');
-            nameInput.focus();
-            nameInput.style.borderColor = '#dc2626';
-            setTimeout(function() { nameInput.style.borderColor = ''; }, 2000);
+            var ni = document.getElementById('assignmentName');
+            ni.focus();
+            ni.style.borderColor = '#dc2626';
+            setTimeout(function() { ni.style.borderColor = ''; }, 2000);
             return;
         }
 
-        var entries = fileEntriesContainer.querySelectorAll('.file-entry');
+        var rows = fileEntriesContainer.querySelectorAll('.file-entry');
         var files = [];
-        entries.forEach(function(entry) {
-            var entryName = entry.querySelector('.entry-name').value.trim();
-            var entryUrl = entry.querySelector('.entry-url').value.trim();
-            if (entryName || entryUrl) {
-                files.push({
-                    name: entryName || 'File',
-                    url: entryUrl,
-                    type: entryUrl ? detectFileType(entryUrl) : 'file'
-                });
+        rows.forEach(function(row) {
+            var n = row.querySelector('.entry-name').value.trim();
+            var u = row.querySelector('.entry-url').value.trim();
+            if (n || u) {
+                files.push({ name: n || 'File', url: u, type: u ? detectType(u) : 'file' });
             }
         });
 
-        var assignments = getAssignments();
-
+        var all = getAssignments();
         if (editId) {
-            for (var i = 0; i < assignments.length; i++) {
-                if (assignments[i].id === editId) {
-                    assignments[i].name = name;
-                    assignments[i].subject = subject;
-                    assignments[i].files = files;
-                    assignments[i].updatedAt = new Date().toISOString();
+            for (var i = 0; i < all.length; i++) {
+                if (all[i].id === editId) {
+                    all[i].name = name;
+                    all[i].subject = subject;
+                    all[i].files = files;
+                    all[i].updatedAt = new Date().toISOString();
                     break;
                 }
             }
         } else {
-            assignments.unshift({
+            all.unshift({
                 id: 'asg_' + Date.now(),
-                name: name,
-                subject: subject,
-                files: files,
+                name: name, subject: subject, files: files,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             });
         }
 
-        saveAssignmentsData(assignments);
+        storeAssignments(all);
         closeAssignmentModal();
         renderAssignments();
+        console.log('[Portfolio] Assignment saved, total:', all.length);
     }
 
+    // DELETE
     function deleteAssignment(id) {
         if (!isAdmin) return;
         if (!confirm('Yakin ingin menghapus tugas ini?')) return;
-        var assignments = getAssignments().filter(function(a) { return a.id !== id; });
-        saveAssignmentsData(assignments);
+        var all = getAssignments().filter(function(a) { return a.id !== id; });
+        storeAssignments(all);
         renderAssignments();
     }
 
+    // RENDER
     function renderAssignments() {
-        var assignments = getAssignments();
+        var all = getAssignments();
+        console.log('[Portfolio] renderAssignments, count:', all.length, 'isAdmin:', isAdmin);
 
-        if (assignments.length === 0) {
-            var emptyHint = isAdmin
-                ? '<p class="hint">Klik "Tambah Tugas" untuk menambahkan tugas kuliah</p>'
-                : '<p class="hint">Belum ada tugas yang ditambahkan</p>';
+        if (!all.length) {
             assignmentsList.innerHTML =
                 '<div class="assignment-empty">' +
-                    '<i class="fas fa-book-open"></i>' +
-                    '<p>Belum ada tugas</p>' +
-                    emptyHint +
+                '<i class="fas fa-book-open"></i>' +
+                '<p>Belum ada tugas</p>' +
+                (isAdmin ? '<p class="hint">Klik "Tambah Tugas" untuk menambahkan tugas kuliah</p>' : '<p class="hint">Belum ada tugas yang ditambahkan</p>') +
                 '</div>';
             return;
         }
 
         var html = '';
-        for (var i = 0; i < assignments.length; i++) {
-            var a = assignments[i];
-            html += '<div class="assignment-card" data-id="' + a.id + '">';
+        for (var i = 0; i < all.length; i++) {
+            var a = all[i];
+            html += '<div class="assignment-card">';
             html += '<div class="assignment-card-header">';
             html += '<h4><i class="fas fa-book"></i> ' + escapeHtml(a.name) + '</h4>';
             if (isAdmin) {
                 html += '<div class="assignment-actions">';
-                html += '<button class="btn-edit" title="Edit" data-edit-id="' + a.id + '"><i class="fas fa-pen"></i></button>';
-                html += '<button class="btn-delete" title="Hapus" data-delete-id="' + a.id + '"><i class="fas fa-trash"></i></button>';
+                html += '<button class="btn-edit" data-id="' + a.id + '" title="Edit"><i class="fas fa-pen"></i></button>';
+                html += '<button class="btn-delete" data-id="' + a.id + '" title="Hapus"><i class="fas fa-trash"></i></button>';
                 html += '</div>';
             }
             html += '</div>';
-            if (a.subject) {
-                html += '<div class="assignment-meta"><i class="fas fa-graduation-cap"></i> ' + escapeHtml(a.subject) + '</div>';
-            }
-            html += '<div class="assignment-meta"><i class="fas fa-clock"></i> ' + formatDate(a.updatedAt || a.createdAt) + '</div>';
-            if (a.files && a.files.length > 0) {
+            if (a.subject) html += '<div class="assignment-meta"><i class="fas fa-graduation-cap"></i> ' + escapeHtml(a.subject) + '</div>';
+            html += '<div class="assignment-meta"><i class="fas fa-clock"></i> ' + fmtDate(a.updatedAt || a.createdAt) + '</div>';
+            if (a.files && a.files.length) {
                 html += '<div class="assignment-files">';
                 for (var j = 0; j < a.files.length; j++) {
                     var f = a.files[j];
                     if (f.url) {
                         html += '<a href="' + escapeHtml(f.url) + '" class="assignment-file" target="_blank" rel="noopener">';
-                        html += '<i class="' + getFileIcon(f.type) + '"></i>';
-                        html += '<span class="file-name">' + escapeHtml(f.name) + '</span>';
-                        html += '<span class="file-type">' + f.type + '</span>';
-                        html += '</a>';
                     } else {
                         html += '<div class="assignment-file">';
-                        html += '<i class="' + getFileIcon('file') + '"></i>';
-                        html += '<span class="file-name">' + escapeHtml(f.name) + '</span>';
-                        html += '<span class="file-type">file</span>';
-                        html += '</div>';
                     }
+                    html += '<i class="' + fileIcon(f.type) + '"></i>';
+                    html += '<span class="file-name">' + escapeHtml(f.name) + '</span>';
+                    html += '<span class="file-type">' + (f.type || 'file') + '</span>';
+                    html += f.url ? '</a>' : '</div>';
                 }
                 html += '</div>';
             }
@@ -470,38 +445,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         assignmentsList.innerHTML = html;
 
-        // Attach edit/delete event listeners via delegation
-        var editBtns = assignmentsList.querySelectorAll('.btn-edit[data-edit-id]');
-        editBtns.forEach(function(btn) {
+        // Attach edit & delete listeners
+        assignmentsList.querySelectorAll('.btn-edit').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                openEditModal(btn.getAttribute('data-edit-id'));
+                openEditModal(btn.getAttribute('data-id'));
             });
         });
-        var deleteBtns = assignmentsList.querySelectorAll('.btn-delete[data-delete-id]');
-        deleteBtns.forEach(function(btn) {
+        assignmentsList.querySelectorAll('.btn-delete').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                deleteAssignment(btn.getAttribute('data-delete-id'));
+                deleteAssignment(btn.getAttribute('data-id'));
             });
         });
     }
 
-    // Event listeners for assignment modal
-    if (btnAdd) {
-        btnAdd.addEventListener('click', function() {
+    // ========================================
+    // EVENT LISTENERS
+    // ========================================
+    if (btnAddAssignment) {
+        console.log('[Portfolio] Attaching click to btnAddAssignment');
+        btnAddAssignment.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('[Portfolio] btnAddAssignment CLICKED');
             openAddModal();
         });
     }
-    if (btnCancel) {
-        btnCancel.addEventListener('click', closeAssignmentModal);
-    }
-    if (btnSave) {
-        btnSave.addEventListener('click', function() {
-            saveAssignment();
-        });
-    }
+
+    if (btnCancel) btnCancel.addEventListener('click', closeAssignmentModal);
+    if (btnSave) btnSave.addEventListener('click', function() { saveAssignment(); });
     if (btnAddEntry) {
         btnAddEntry.addEventListener('click', function() {
-            addFileEntry();
+            console.log('[Portfolio] Add file entry clicked');
+            addFileEntry('', '');
         });
     }
 
@@ -514,24 +489,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             if (assignmentModal && assignmentModal.classList.contains('active')) closeAssignmentModal();
-            if (loginModal && loginModal.classList.contains('active')) closeLoginModal();
+            if (loginModal && loginModal.classList.contains('active')) closeLogin();
         }
     });
 
     // Initial render
     renderAssignments();
+    console.log('[Portfolio] Initialization complete');
 });
-
-// Shake animation for login error
-(function() {
-    var shakeStyle = document.createElement('style');
-    shakeStyle.textContent =
-        '@keyframes shake {' +
-            '0%, 100% { transform: translateX(0); }' +
-            '20% { transform: translateX(-10px); }' +
-            '40% { transform: translateX(10px); }' +
-            '60% { transform: translateX(-6px); }' +
-            '80% { transform: translateX(6px); }' +
-        '}';
-    document.head.appendChild(shakeStyle);
-})();
