@@ -297,22 +297,13 @@
             <!-- Assignment Section -->
             <section id="tugas" class="section">
                 <div class="content-card">
-                    <div class="assignment-header">
-                        <h2 class="section-title">Tugas Kuliah</h2>
-                        <div class="assignment-header-actions">
-                            <button class="btn-add-assignment admin-only" id="btnAddAssignment" style="display:none;">
-                                <i class="fas fa-plus"></i> Tambah Tugas
-                            </button>
-                            <button class="btn-admin-login" id="btnAdminLogin">
-                                <i class="fas fa-lock"></i> Login Admin
-                            </button>
-                            <button class="btn-admin-logout admin-only" id="btnAdminLogout" style="display:none;">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </button>
-                        </div>
+                    <div class="assignment-intro">
+                        <span class="assignment-label">COURSEWORK · UNIVERSITAS AHMAD DAHLAN</span>
+                        <h2 class="section-title assignment-main-title">Tugas Kuliah</h2>
+                        <p class="assignment-desc">Kumpulan tugas dari mata kuliah yang saya tempuh, mencakup berbagai proyek dan assignment dalam format dokumen maupun video.</p>
                     </div>
-                    <div class="assignments-list" id="assignmentsList">
-                        <!-- Assignments will be rendered by JS -->
+                    <div class="assignment-grid" id="assignmentGrid">
+                        <!-- Rendered by JS from assignments-data.js -->
                     </div>
                 </div>
             </section>
@@ -345,59 +336,7 @@
         </nav>
     </div>
 
-    <!-- Assignment Modal -->
-    <div class="modal-overlay" id="assignmentModal">
-        <div class="modal">
-            <h3 id="modalTitle">Tambah Tugas</h3>
-            <input type="hidden" id="editId" value="">
-            <div class="form-group">
-                <label for="assignmentName">Nama Tugas</label>
-                <input type="text" id="assignmentName" placeholder="Contoh: Laporan Praktikum Basis Data">
-            </div>
-            <div class="form-group">
-                <label for="assignmentSubject">Mata Kuliah</label>
-                <input type="text" id="assignmentSubject" placeholder="Contoh: Basis Data">
-            </div>
-            <div class="form-group">
-                <label>File / Link Google Drive</label>
-                <div class="file-entries" id="fileEntries">
-                    <!-- File entries will be added here -->
-                </div>
-                <button type="button" class="btn-add-entry" id="btnAddEntry">
-                    <i class="fas fa-plus"></i> Tambah File / Link
-                </button>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-cancel" id="btnCancel">Batal</button>
-                <button class="btn-save" id="btnSave">Simpan</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Login Modal -->
-    <div class="modal-overlay" id="loginModal">
-        <div class="modal modal-sm">
-            <h3><i class="fas fa-shield-alt"></i> Login Admin</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Masukkan password untuk mengelola tugas kuliah.</p>
-            <div class="form-group">
-                <label for="adminPassword">Password</label>
-                <div style="position: relative;">
-                    <input type="password" id="adminPassword" placeholder="Masukkan password">
-                    <button type="button" id="togglePassword" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.9rem;">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
-            </div>
-            <div id="loginError" style="display:none;color:#dc2626;font-size:0.8rem;margin-bottom:12px;">
-                <i class="fas fa-exclamation-circle"></i> Password salah!
-            </div>
-            <div class="modal-actions">
-                <button class="btn-cancel" id="btnLoginCancel">Batal</button>
-                <button class="btn-save" id="btnLoginSubmit">Masuk</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="js/main.js?v=3"></script>
+    <script src="js/assignments-data.js?v=4"></script>
+    <script src="js/main.js?v=4"></script>
 </body>
 </html>
