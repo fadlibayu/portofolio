@@ -17,11 +17,11 @@
 var ASSIGNMENTS_DATA = [
     {
         number: "01",
-        type: "Video",
-        label: "Assignment 1",
-        title: "Self-Introduction",
-        description: "A short video in which I introduce myself in English: who I am, where I study, and what I'm passionate about.",
-        driveUrl: "https://drive.google.com/drive/folders/CONTOH_LINK_1"
+        type: "Video and PDF",
+        label: "midterm tests",
+        title: "a job application letter and Video Presentation",
+        description: "A job application letter and Video Presentation",
+        driveUrl: "https://drive.google.com/drive/folders/1bpFPco8IMbtGR3qOKAGfPvQFA_LzjnEF?usp=drive_link"
     },
     {
         number: "02",
