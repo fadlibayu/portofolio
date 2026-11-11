@@ -19,7 +19,7 @@ var ASSIGNMENTS_DATA = [
         number: "01",
         type: "Video and PDF",
         label: "midterm tests",
-        title: "midterm tests a job application letter and Video Presentation",
+        title: "midterm tests, a job application letter and Video Presentation",
         description: "A job application letter and Video Presentation",
         driveUrl: "https://drive.google.com/drive/folders/1bpFPco8IMbtGR3qOKAGfPvQFA_LzjnEF?usp=drive_link"
     },
